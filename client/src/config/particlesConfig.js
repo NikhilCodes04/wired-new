@@ -1,7 +1,7 @@
 const particlesConfig = {
     background: {
         color: {
-            value: "#fffff5", // Background color
+            value: "#ffffff", // Background color (white)
         },
     },
     fpsLimit: 120,
@@ -9,29 +9,29 @@ const particlesConfig = {
         events: {
             onClick: {
                 enable: true,
-                mode: "push", // Add particles on click
+                mode: "push",
             },
             onHover: {
                 enable: true,
-                mode: "repulse", // Repulse particles on hover
+                mode: "repulse",
             },
         },
         modes: {
             push: {
-                quantity: 4, // Number of particles added on click
+                quantity: 4,
             },
             repulse: {
-                distance: 200, // Distance for repulsion
+                distance: 200,
                 duration: 0.4,
             },
         },
     },
     particles: {
         color: {
-            value: "#6366f1", // Particle color (indigo)
+            value: "#4f46e5", // Match bg-indigo-600
         },
         links: {
-            color: "#6366f1",
+            color: "#4f46e5", // Match bg-indigo-600
             distance: 150,
             enable: true,
             opacity: 0.5,
@@ -44,15 +44,14 @@ const particlesConfig = {
                 default: "bounce",
             },
             random: false,
-            speed: 2,
+            speed: 6,
             straight: false,
         },
         number: {
             density: {
                 enable: true,
-                area: 800,
             },
-            value: 50,
+            value: 80,
         },
         opacity: {
             value: 0.5,

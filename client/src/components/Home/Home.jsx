@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Top from "./Top";
 import Register from "../Register/Register";
 import Login from "../Login/Login";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim"; // Slim version for smaller bundle size
+import { loadSlim } from "@tsparticles/slim";
+import particlesConfig from "../../config/particlesConfig"; // Import the configuration
 
 function Home() {
   const [showRegister, setShowRegister] = useState(false);
@@ -23,78 +24,6 @@ function Home() {
     console.log("Particles Loaded:", container);
   };
 
-  // Particle options configuration
-  const particlesOptions = useMemo(
-    () => ({
-      background: {
-        color: {
-          value: "#ffffff", // Background color (white)
-        },
-      },
-      fpsLimit: 120,
-      interactivity: {
-        events: {
-          onClick: {
-            enable: true,
-            mode: "push",
-          },
-          onHover: {
-            enable: true,
-            mode: "repulse",
-          },
-        },
-        modes: {
-          push: {
-            quantity: 4,
-          },
-          repulse: {
-            distance: 200,
-            duration: 0.4,
-          },
-        },
-      },
-      particles: {
-        color: {
-          value: "#4f46e5", // Match bg-indigo-600
-        },
-        links: {
-          color: "#4f46e5", // Match bg-indigo-600
-          distance: 150,
-          enable: true,
-          opacity: 0.5,
-          width: 1,
-        },
-        move: {
-          direction: "none",
-          enable: true,
-          outModes: {
-            default: "bounce",
-          },
-          random: false,
-          speed: 6,
-          straight: false,
-        },
-        number: {
-          density: {
-            enable: true,
-          },
-          value: 80,
-        },
-        opacity: {
-          value: 0.5,
-        },
-        shape: {
-          type: "circle",
-        },
-        size: {
-          value: { min: 1, max: 5 },
-        },
-      },
-      detectRetina: true,
-    }),
-    []
-  );
-
   return (
     <div className="relative h-screen">
       {/* Particle Animation */}
@@ -102,7 +31,7 @@ function Home() {
         <Particles
           id="tsparticles"
           particlesLoaded={particlesLoaded}
-          options={particlesOptions}
+          options={particlesConfig} // Use the imported configuration
           className="absolute inset-0 z-0"
         />
       )}
