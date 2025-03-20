@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
+import config from '../../config/config';
 
 export function Register({ onClose }) {
     const [userType, setUserType] = useState('student');
@@ -17,7 +18,7 @@ export function Register({ onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/register', {
+            const response = await axios.post(`${config.API_BASE_URL}/auth/register`, {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
@@ -40,15 +41,19 @@ export function Register({ onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 flex items-center justify-center p-3"
+            style={{
+                backgroundColor: "rgba(0, 0, 0, 0.3)",
+                backdropFilter: "blur(5px)",
+            }}>
             <div className="bg-white rounded-lg p-8 max-w-md w-full">
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-2">
                     <h2 className="text-2xl font-bold text-gray-900">Sign Up</h2>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                         ✕
                     </button>
                 </div>
-                <div className="flex space-x-4 mb-6">
+                <div className="flex space-x-4 mb-2">
                     <button
                         className={`flex-1 py-2 px-4 rounded-lg ${userType === 'student'
                                 ? 'bg-indigo-600 text-white'
@@ -68,7 +73,7 @@ export function Register({ onClose }) {
                         Mentor
                     </button>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                         <input
@@ -149,3 +154,5 @@ export function Register({ onClose }) {
         </div>
     );
 }
+
+export default Register;

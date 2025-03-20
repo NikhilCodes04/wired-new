@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router";
 import Home from "./components/Home/Home.jsx";
 import About from "./components/About/About.jsx";
 import Login from "./components/Login/Login.jsx";
+import Register from "./components/Register/Register.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./components/Dashboard/Dashboard.jsx";
 import AddProject from "./components/AddProject/AddProject.jsx";
@@ -17,6 +18,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
         <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
 
         <Route
           path="/dashboard"
