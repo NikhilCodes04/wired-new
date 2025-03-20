@@ -24,7 +24,7 @@ function Top() {
             {isLoggedIn && (
                 <button
                     onClick={handleLogout}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg transition-colors"
+                    className="bg-white hover:bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-lg transition-colors"
                 >
                     Logout
                 </button>
