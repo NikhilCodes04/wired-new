@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.14",
+    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/slim": "^3.8.1",
     "axios": "^1.8.3",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.483.0",
