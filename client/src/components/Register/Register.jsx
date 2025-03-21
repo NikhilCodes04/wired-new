@@ -13,32 +13,48 @@ export function Register({ onClose }) {
         department: '',
         skills: '',
     });
+    const [error, setError] = useState(''); 
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post(`${config.API_BASE_URL}/auth/register`, {
-                name: formData.name,
-                email: formData.email,
-                password: formData.password,
-                role: userType,
-                technologicalStack: formData.skills.split(',').map((skill) => skill.trim()),
-                phoneNumber: '',
-                studentId: userType === 'student' ? formData.college : undefined,
-                facultyId: userType === 'mentor' ? formData.department : undefined,
-            });
-            console.log('User registered successfully:', response.data);
-            onClose();
-            navigate('/dashboard'); // Navigate to the dashboard page
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error('Registration failed:', error.response?.data || error.message);
+    e.preventDefault();
+    setError(''); // Clear any previous error message
+    try {
+        const response = await axios.post(`${config.API_BASE_URL}/auth/register`, {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: userType,
+            technologicalStack: formData.skills.split(',').map((skill) => skill.trim()),
+            phoneNumber: '',
+            studentId: userType === 'student' ? formData.college : undefined,
+            facultyId: userType === 'mentor' ? formData.department : undefined,
+        });
+        console.log('User registered successfully:', response.data);
+
+        // Close the modal before navigating
+        if (onClose) onClose();
+
+        // Navigate to the login page
+        navigate('/login');
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            console.error('Registration failed:', error.response?.data || error.message);
+
+            // Handle specific error messages from the server
+            if (error.response?.data?.message === 'Email already registered.') {
+                setError('The email address is already registered. Please use a different email.');
+            } else if (error.response?.data?.message === 'Password too short.') {
+                setError('The password must be at least 8 characters long.');
             } else {
-                console.error('Registration failed:', error);
+                setError(error.response?.data?.message || 'An error occurred during registration. Please try again.');
             }
+        } else {
+            console.error('Registration failed:', error);
+            setError('An unexpected error occurred. Please try again.');
         }
-    };
+    }
+};
 
     return (
         <div className="fixed inset-0 flex items-center justify-center p-3"
@@ -73,6 +89,11 @@ export function Register({ onClose }) {
                         Mentor
                     </button>
                 </div>
+                {error && ( // Display error message if it exists
+                    <div className="mb-4 text-red-500 text-sm">
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>

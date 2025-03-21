@@ -8,31 +8,42 @@ import config from "../../config/config.js";
 function Login({ onClose }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(''); // State to store error message
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setError(''); // Clear any previous error message
         try {
             const response = await axios.post(`${config.API_BASE_URL}/auth/login`, { email, password });
-
+    
             // Store the token in localStorage
             localStorage.setItem("token", response.data.token);
-
+    
             // Decode the token to extract the user role
             const decodedToken = jwtDecode(response.data.token);
             const userRole = decodedToken.role;
-
+    
             // Store the user role in localStorage
             localStorage.setItem("role", userRole);
-
+    
             console.log("Logged in successfully:", response.data);
             console.log("User role:", userRole);
-
+    
             // Navigate to the dashboard after successful login
             if (onClose) onClose(); // Close the login modal if onClose is provided
             navigate("/dashboard");
         } catch (error) {
             console.error("Login or authorization error:", error.response?.data || error.message);
+    
+            // Handle specific error messages from the server
+            if (error.response?.data?.message === "User not found.") {
+                setError("The email address you entered is not registered.");
+            } else if (error.response?.data?.message === "Invalid credentials.") {
+                setError("Incorrect password. Please try again.");
+            } else {
+                setError(error.response?.data?.message || "An error occurred during login. Please try again.");
+            }
         }
     };
 
@@ -49,6 +60,11 @@ function Login({ onClose }) {
                         ✕
                     </button>
                 </div>
+                {error && ( // Display error message if it exists
+                    <div className="mb-4 text-red-500 text-sm">
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
