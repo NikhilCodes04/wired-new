@@ -10,6 +10,8 @@ import ViewProjects from "./components/ViewProjects/ViewProjects.jsx";
 import ProjectPage from "./components/ProjectPage/ProjectPage.jsx";
 import Profile from "./components/Profile/Profile.jsx";
 import ViewRequests from "./components/ViewRequests/ViewRequests.jsx";
+import DefaultComponent from "./components/DefaultComponenent/DefaultComponent.jsx";
+
 
 function App() {
   return (
@@ -28,6 +30,7 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route index element={<DefaultComponent />} />
           {/* Nested route for AddProject */}
           <Route path="add-project" element={<AddProject />} />
           <Route path="view-projects" element={<ViewProjects />} />
