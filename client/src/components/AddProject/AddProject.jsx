@@ -12,8 +12,31 @@ const AddProject = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!name || !description || !technologies) {
-            setError('All fields are required');
+        // Validate empty fields
+        if (!name.trim()) {
+            setError('Project name is required');
+            return;
+        }
+        if (!description.trim()) {
+            setError('Project description is required');
+            return;
+        }
+        if (!technologies.trim()) {
+            setError('Technologies are required');
+            return;
+        }
+
+        // Validate maximum technologies limit (e.g., 10 technologies)
+        const techArray = technologies.split(',').map((tech) => tech.trim());
+        if (techArray.length > 10) {
+            setError('You can only add up to 10 technologies');
+            return;
+        }
+
+        // Validate unauthorized submission (e.g., missing token)
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('Unauthorized: Please log in to create a project');
             return;
         }
 
@@ -23,7 +46,7 @@ const AddProject = () => {
         const projectData = {
             name,
             description,
-            technologies: technologies.split(',').map((tech) => tech.trim()), // Convert comma-separated string to an array
+            technologies: techArray,
         };
 
         try {
@@ -31,18 +54,20 @@ const AddProject = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`, // Add JWT token in the headers
+                    'Authorization': `Bearer ${token}`, // Add JWT token in the headers
                 },
                 body: JSON.stringify(projectData),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create project');
+                // Handle server-side errors
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to create project');
             }
 
             const data = await response.json();
             alert(data.message);
-            navigate('/dashboard/view-projects'); // Redirect to the list of projects or wherever you want after successful project creation
+            navigate('/dashboard/view-projects'); // Redirect to the list of projects
         } catch (err) {
             setError(err.message);
         } finally {
@@ -56,41 +81,41 @@ const AddProject = () => {
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Add New Project</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Project Name:</label>
+                        <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-2">Project Name:</label>
                         <input
+                            id="projectName"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Enter project name"
-                            required
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Description:</label>
+                        <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-700 mb-2">Description:</label>
                         <textarea
+                            id="projectDescription"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Enter project description"
-                            required
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Technologies (comma separated):</label>
+                        <label htmlFor="projectTechnologies" className="block text-sm font-medium text-gray-700 mb-2">Technologies (comma separated):</label>
                         <input
+                            id="projectTechnologies"
                             type="text"
                             value={technologies}
                             onChange={(e) => setTechnologies(e.target.value)}
                             placeholder="Enter technologies"
-                            required
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                         />
                     </div>
 
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
+                    {error && <div id="inputError" className="text-red-500 text-sm">{error}</div>}
 
                     <div>
                         <button
