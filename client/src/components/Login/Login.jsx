@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
-import { Mail, Lock } from 'lucide-react';
+import { Mail, Lock, Loader } from 'lucide-react'; // Import Loader icon
 import { jwtDecode } from "jwt-decode";
 import config from "../../config/config.js";
 
@@ -9,33 +9,35 @@ function Login({ onClose }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(''); // State to store error message
+    const [loading, setLoading] = useState(false); // State to track loading
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError(''); // Clear any previous error message
+        setLoading(true); // Set loading to true
         try {
             const response = await axios.post(`${config.API_BASE_URL}/auth/login`, { email, password });
-    
+
             // Store the token in localStorage
             localStorage.setItem("token", response.data.token);
-    
+
             // Decode the token to extract the user role
             const decodedToken = jwtDecode(response.data.token);
             const userRole = decodedToken.role;
-    
+
             // Store the user role in localStorage
             localStorage.setItem("role", userRole);
-    
+
             console.log("Logged in successfully:", response.data);
             console.log("User role:", userRole);
-    
+
             // Navigate to the dashboard after successful login
             if (onClose) onClose(); // Close the login modal if onClose is provided
             navigate("/dashboard");
         } catch (error) {
             console.error("Login or authorization error:", error.response?.data || error.message);
-    
+
             // Handle specific error messages from the server
             if (error.response?.data?.message === "User not found.") {
                 setError("The email address you entered is not registered.");
@@ -44,6 +46,8 @@ function Login({ onClose }) {
             } else {
                 setError(error.response?.data?.message || "An error occurred during login. Please try again.");
             }
+        } finally {
+            setLoading(false); // Set loading to false after the request completes
         }
     };
 
@@ -100,9 +104,14 @@ function Login({ onClose }) {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center"
+                        disabled={loading} // Disable button while loading
                     >
-                        Log In
+                        {loading ? (
+                            <Loader className="animate-spin h-5 w-5 text-white" /> // Show loader when loading
+                        ) : (
+                            "Log In"
+                        )}
                     </button>
                 </form>
             </div>

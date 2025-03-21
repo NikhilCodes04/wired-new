@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
+import { Loader } from 'lucide-react'; // Import Loader icon
 import config from '../../config/config';
 
 export function Register({ onClose }) {
@@ -13,48 +14,52 @@ export function Register({ onClose }) {
         department: '',
         skills: '',
     });
-    const [error, setError] = useState(''); 
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // State to track loading
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(''); // Clear any previous error message
-    try {
-        const response = await axios.post(`${config.API_BASE_URL}/auth/register`, {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            role: userType,
-            technologicalStack: formData.skills.split(',').map((skill) => skill.trim()),
-            phoneNumber: '',
-            studentId: userType === 'student' ? formData.college : undefined,
-            facultyId: userType === 'mentor' ? formData.department : undefined,
-        });
-        console.log('User registered successfully:', response.data);
+        e.preventDefault();
+        setError(''); // Clear any previous error message
+        setLoading(true); // Set loading to true
+        try {
+            const response = await axios.post(`${config.API_BASE_URL}/auth/register`, {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+                role: userType,
+                technologicalStack: formData.skills.split(',').map((skill) => skill.trim()),
+                phoneNumber: '',
+                studentId: userType === 'student' ? formData.college : undefined,
+                facultyId: userType === 'mentor' ? formData.department : undefined,
+            });
+            console.log('User registered successfully:', response.data);
 
-        // Close the modal before navigating
-        if (onClose) onClose();
+            // Close the modal before navigating
+            if (onClose) onClose();
 
-        // Navigate to the login page
-        navigate('/login');
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('Registration failed:', error.response?.data || error.message);
+            // Navigate to the login page
+            navigate('/login');
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Registration failed:', error.response?.data || error.message);
 
-            // Handle specific error messages from the server
-            if (error.response?.data?.message === 'Email already registered.') {
-                setError('The email address is already registered. Please use a different email.');
-            } else if (error.response?.data?.message === 'Password too short.') {
-                setError('The password must be at least 8 characters long.');
+                // Handle specific error messages from the server
+                if (error.response?.data?.message === 'Email already registered.') {
+                    setError('The email address is already registered. Please use a different email.');
+                } else if (error.response?.data?.message === 'Password too short.') {
+                    setError('The password must be at least 8 characters long.');
+                } else {
+                    setError(error.response?.data?.message || 'An error occurred during registration. Please try again.');
+                }
             } else {
-                setError(error.response?.data?.message || 'An error occurred during registration. Please try again.');
+                console.error('Registration failed:', error);
+                setError('An unexpected error occurred. Please try again.');
             }
-        } else {
-            console.error('Registration failed:', error);
-            setError('An unexpected error occurred. Please try again.');
+        } finally {
+            setLoading(false); // Set loading to false after the request completes
         }
-    }
-};
+    };
 
     return (
         <div className="fixed inset-0 flex items-center justify-center p-3"
@@ -166,9 +171,14 @@ export function Register({ onClose }) {
                     )}
                     <button
                         type="submit"
-                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center"
+                        disabled={loading} // Disable button while loading
                     >
-                        Create Account
+                        {loading ? (
+                            <Loader className="animate-spin h-5 w-5 text-white" /> // Show loader when loading
+                        ) : (
+                            "Create Account"
+                        )}
                     </button>
                 </form>
             </div>
