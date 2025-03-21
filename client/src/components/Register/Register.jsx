@@ -45,10 +45,12 @@ export function Register({ onClose }) {
                 console.error('Registration failed:', error.response?.data || error.message);
 
                 // Handle specific error messages from the server
-                if (error.response?.data?.message) {
-                    setError(error.response.data.message); // Display backend error message
+                if (error.response?.data?.message === 'Email already registered.') {
+                    setError('The email address is already registered. Please use a different email.');
+                } else if (error.response?.data?.message === 'Password too short.') {
+                    setError('The password must be at least 8 characters long.');
                 } else {
-                    setError('An error occurred during registration. Please try again.');
+                    setError(error.response?.data?.message || 'An error occurred during registration. Please try again.');
                 }
             } else {
                 console.error('Registration failed:', error);
@@ -75,8 +77,8 @@ export function Register({ onClose }) {
                 <div className="flex space-x-4 mb-2">
                     <button
                         className={`flex-1 py-2 px-4 rounded-lg ${userType === 'student'
-                            ? 'bg-indigo-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         onClick={() => setUserType('student')}
                     >
@@ -84,8 +86,8 @@ export function Register({ onClose }) {
                     </button>
                     <button
                         className={`flex-1 py-2 px-4 rounded-lg ${userType === 'mentor'
-                            ? 'bg-indigo-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-indigo-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         onClick={() => setUserType('mentor')}
                     >

@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel.js');
 
-// Register function with enhanced password validation
+// Register function with token generation
 const register = async (req, res) => {
     try {
         const { name, email, password, role, technologicalStack, phoneNumber, studentId, facultyId } = req.body;
@@ -13,12 +13,9 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'Email is already registered.' });
         }
 
-        // Password validation
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
-        if (!passwordRegex.test(password)) {
-            return res.status(400).json({
-                message: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.',
-            });
+        // Ensure minimum password length
+        if (password.length < 8) {
+            return res.status(400).json({ message: 'Password should be at least 8 characters long.' });
         }
 
         // Hash password
