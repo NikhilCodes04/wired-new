@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+//import { useNavigate } from 'react-router';
 import axios from 'axios';
 import { Loader } from 'lucide-react'; // Import Loader icon
 import config from '../../config/config';
 
-export function Register({ onClose }) {
+export function Register({ onClose, onOpenLogin }) {
     const [userType, setUserType] = useState('student');
     const [formData, setFormData] = useState({
         name: '',
@@ -16,7 +16,7 @@ export function Register({ onClose }) {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false); // State to track loading
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,11 +35,11 @@ export function Register({ onClose }) {
             });
             console.log('User registered successfully:', response.data);
 
-            // Close the modal before navigating
+            // Close the register modal
             if (onClose) onClose();
 
-            // Navigate to the login page
-            navigate('/login');
+            // Open the login modal
+            if (onOpenLogin) onOpenLogin();
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error('Registration failed:', error.response?.data || error.message);

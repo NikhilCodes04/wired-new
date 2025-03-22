@@ -71,7 +71,15 @@ function Home() {
         </div>
 
         {/* Render Modals */}
-        {showRegister && <Register onClose={() => setShowRegister(false)} />}
+        {showRegister && (
+          <Register
+            onClose={() => setShowRegister(false)}
+            onOpenLogin={() => {
+              setShowRegister(false); // Close the Register modal
+              setShowLogin(true); // Open the Login modal
+            }}
+          />
+        )}
         {showLogin && <Login onClose={() => setShowLogin(false)} />}
       </div>
     </div>
