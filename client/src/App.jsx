@@ -11,6 +11,8 @@ import ProjectPage from "./components/ProjectPage/ProjectPage.jsx";
 import Profile from "./components/Profile/Profile.jsx";
 import ViewRequests from "./components/ViewRequests/ViewRequests.jsx";
 import DefaultComponent from "./components/DefaultComponenent/DefaultComponent.jsx";
+import FindTeammates from "./components/FindTeammates/FindTeammates.jsx";
+import FindMentors from "./components/FindMentors/FindMentors.jsx";
 
 
 function App() {
@@ -22,38 +24,21 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
 
-        <Route
-          path="/dashboard"
-          element={
+        <Route path="/dashboard" element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          }
-        >
+          }>
           <Route index element={<DefaultComponent />} />
-          {/* Nested route for AddProject */}
           <Route path="add-project" element={<AddProject />} />
           <Route path="view-projects" element={<ViewProjects />} />
           <Route path="view-projects/:id" element={<ProjectPage />} />
+          <Route path="view-projects/:id/find-teammates" element={<FindTeammates />} />
+          <Route path="view-projects/:id/find-mentor" element={<FindMentors />} />
           <Route path="profile" element={<Profile />} />
           <Route path="view-requests" element={<ViewRequests />} />
         </Route>
-        {/* <Route
-          path="/projects"
-          element={
-            <ProtectedRoute>
-              <Projects />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/projects/:id"
-          element={
-            <ProtectedRoute>
-              <ProjectDetails />
-            </ProtectedRoute>
-          }
-        />
+        {/* 
         <Route
           path="/projects/:projectId/find-teammates"
           element={
@@ -78,7 +63,6 @@ function App() {
 
       </Routes>
 
-      {/* <div>Hello</div> */}
     </>
   );
 }
