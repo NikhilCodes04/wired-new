@@ -10,7 +10,7 @@ const ViewRequests = () => {
     useEffect(() => {
         const fetchRequests = async () => {
             try {
-                const response = await axios.get(`${config.API_BASE_URL}/requests/user`, {
+                const response = await axios.get(`${config.API_BASE_URL}/request/user`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
