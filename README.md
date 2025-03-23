@@ -72,6 +72,6 @@ Join Wired to find the perfect project teammates and mentors. Whether you're a s
 - **Profile:** After logging in, update your profile with skills, phone number, etc.
 - **Projects:** Create projects, view projects, and send requests to join as a teammate or mentor.
 - **Search:** Students can search for mentors based on their tech stack and vice versa.
-- **Events & Notifications:** Admins can post events, which generate notifications for targeted users.
+.
 
 
