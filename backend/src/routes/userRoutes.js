@@ -24,7 +24,7 @@ router.get('/mentors', verifyToken, authorizeRoles("admin", "student","mentor"),
 router.post('/mentors/search', verifyToken, authorizeRoles("student"), searchMentorsByTechStack);
 
 // Route to search students by tech stack (teammates) - accessible by mentors
-router.post('/students/search', verifyToken, authorizeRoles("mentor"), searchStudentsByTechStack);
+router.post('/students/search', verifyToken, authorizeRoles("mentor","student"), searchStudentsByTechStack);
 
 router.get('/profile', verifyToken, getProfile); // Route to get user profile
 router.put('/profile', verifyToken, updateProfile); // Route to update user profile
