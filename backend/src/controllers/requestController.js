@@ -1,6 +1,6 @@
-const Request = require('../models/requestModel.js'); // Assuming you have a Request model
+const Request = require('../models/requestModel.js');
 const Project = require('../models/projectModel.js');
-const User = require('../models/userModel.js'); // Assuming you have a User model
+const User = require('../models/userModel.js');
 
 // Send a new request
 const sendRequest = async (req, res) => {
@@ -15,14 +15,26 @@ const sendRequest = async (req, res) => {
             return res.status(404).json({ message: 'Project not found' });
         }
 
-        // Ensure mentors field is an array before checking includes
-        if (type === 'mentor_request' && Array.isArray(project.mentors) && project.mentors.includes(senderId)) {
+        // Check if the user is already a teammate or mentor
+        if (type === 'mentor_request' && project.mentors.includes(senderId)) {
             return res.status(400).json({ message: 'You are already a mentor for this project.' });
         }
 
-        // Ensure teamMembers field is an array before checking includes
-        if (type === 'teammate_request' && Array.isArray(project.teamMembers) && project.teamMembers.includes(senderId)) {
+        if (type === 'teammate_request' && project.teamMembers.includes(senderId)) {
             return res.status(400).json({ message: 'You are already a teammate for this project.' });
+        }
+
+        // Check if a similar request already exists
+        const existingRequest = await Request.findOne({
+            senderId,
+            receiverId,
+            projectId,
+            type,
+            status: 'pending',
+        });
+
+        if (existingRequest) {
+            return res.status(400).json({ message: 'A similar request is already pending.' });
         }
 
         // Proceed with creating the request
@@ -35,7 +47,7 @@ const sendRequest = async (req, res) => {
         });
 
         await newRequest.save();
-        res.status(201).json({ message: 'Request sent successfully' });
+        res.status(201).json({ message: 'Request sent successfully', request: newRequest });
     } catch (err) {
         res.status(500).json({ message: 'Error sending request', error: err.message });
     }
@@ -111,21 +123,15 @@ const updateRequestStatus = async (req, res) => {
             const project = request.projectId;
 
             if (request.type === 'teammate_request') {
-                // Use `some` to check if receiverId is already in the team
-                const isAlreadyTeammate = project.teamMembers.some(
-                    (member) => member.toString() === request.receiverId.toString()
-                );
-                if (!isAlreadyTeammate) {
-                    project.teamMembers.push(request.receiverId);
+                // Check if the user is already a teammate
+                if (!project.teamMembers.includes(request.senderId._id)) {
+                    project.teamMembers.push(request.senderId._id);
                     await project.save();
                 }
             } else if (request.type === 'mentor_request') {
-                // Use `some` to check if receiverId is already a mentor
-                const isAlreadyMentor = project.mentors.some(
-                    (mentor) => mentor.toString() === request.receiverId.toString()
-                );
-                if (!isAlreadyMentor) {
-                    project.mentors.push(request.receiverId);
+                // Check if the user is already a mentor
+                if (!project.mentors.includes(request.senderId._id)) {
+                    project.mentors.push(request.senderId._id);
                     await project.save();
                 }
             }
@@ -136,7 +142,6 @@ const updateRequestStatus = async (req, res) => {
         res.status(500).json({ message: 'Error updating request status', error: err.message });
     }
 };
-
 
 module.exports = {
     sendRequest,
