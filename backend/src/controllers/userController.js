@@ -3,14 +3,19 @@ const User = require('../models/userModel');
 // Retrieve all students
 const getAllStudents = async (req, res) => {
     try {
-        const students = await User.find({ role: 'student' });
+        const students = await User.find({ role: 'student' }).select(
+            'name email phoneNumber technologicalStack'
+        ); // Select only relevant fields
+
+        if (students.length === 0) {
+            return res.status(404).json({ message: 'No students found.' });
+        }
+
         res.status(200).json({ message: 'Students retrieved successfully', students });
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving students', error: error.message });
     }
 };
-
-
 
 // Retrieve all mentors
 const getAllMentors = async (req, res) => {
@@ -47,13 +52,16 @@ const searchStudentsByTechStack = async (req, res) => {
     try {
         const { techStack } = req.body; // techStack should be an array of skills to match
 
-        const students = await User.find({
+        // If techStack is empty or not provided, fetch all students
+        const query = {
             role: 'student',
-            technologicalStack: { $in: techStack }
-        });
+            ...(techStack && techStack.length > 0 && { technologicalStack: { $in: techStack } }),
+        };
+
+        const students = await User.find(query);
 
         if (students.length === 0) {
-            return res.status(404).json({ message: 'No students found with the specified tech stack' });
+            return res.status(404).json({ message: 'No students found.' });
         }
 
         res.status(200).json({ message: 'Students retrieved successfully', students });
