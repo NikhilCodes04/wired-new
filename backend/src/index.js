@@ -28,6 +28,10 @@ dbConnect();
 // Middleware to parse JSON requests
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send("Welcome to Wired");
+});
+
 // Routes
 app.use("/api/auth", authRoutes);     
 app.use("/api/user", userRoutes);     
@@ -37,6 +41,7 @@ app.use("/api/request", requestRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/notifications', notificationRoutes);
  // Request routes
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
