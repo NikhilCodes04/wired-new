@@ -53,7 +53,7 @@ const addProject = async (req, res) => {
 const getAllProjects = async (req, res) => {
     try {
         const projects = await Project.find()
-            .populate('mentor', 'name email') // Populates mentor details
+            .populate('mentors', 'name email') // Populates mentor details
             .populate('createdBy', 'name email') // Populates creator details
             .populate('teamMembers', 'name email'); // Populates team member details
 
@@ -69,7 +69,7 @@ const getProjectById = async (req, res) => {
     try {
         const { id } = req.params;
         const project = await Project.findById(id)
-            .populate('mentor', 'name email')
+            .populate('mentors', 'name email')
             .populate('createdBy', 'name email')
             .populate('teamMembers', 'name email');
 

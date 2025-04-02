@@ -16,6 +16,7 @@ const ViewRequests = () => {
                     },
                 });
                 setRequests(response.data.requests);
+                console.log("Fetched requests:", response.data.requests);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching requests:", err);

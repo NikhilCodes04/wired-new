@@ -6,6 +6,10 @@ const User = require('../models/userModel.js');
 const sendRequest = async (req, res) => {
     const { receiverId, projectId, type } = req.body;
     const senderId = req.user.id; // Get senderId from the authenticated user
+    console.log("Sender ID:", senderId);
+    console.log("Receiver ID:", receiverId);
+    console.log("Project ID:", projectId);
+    console.log("Request Type:", type);
 
     try {
         // Fetch the project details
@@ -16,11 +20,11 @@ const sendRequest = async (req, res) => {
         }
 
         // Check if the user is already a teammate or mentor
-        if (type === 'mentor_request' && project.mentors.includes(senderId)) {
+        if (type === 'mentor_request' && Array.isArray(project.mentors) && project.mentors.includes(senderId)) {
             return res.status(400).json({ message: 'You are already a mentor for this project.' });
         }
 
-        if (type === 'teammate_request' && project.teamMembers.includes(senderId)) {
+        if (type === 'teammate_request' && Array.isArray(project.teamMembers) && project.teamMembers.includes(senderId)) {
             return res.status(400).json({ message: 'You are already a teammate for this project.' });
         }
 
@@ -49,6 +53,7 @@ const sendRequest = async (req, res) => {
         await newRequest.save();
         res.status(201).json({ message: 'Request sent successfully', request: newRequest });
     } catch (err) {
+        console.error("Error sending request:", err);
         res.status(500).json({ message: 'Error sending request', error: err.message });
     }
 };
