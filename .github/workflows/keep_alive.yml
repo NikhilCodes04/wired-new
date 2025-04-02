@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Ping Render Server
         run: |
-          curl -m 10 ${{ secrets.RENDER_SERVER_URL }} || echo "Server is down"
+          curl -m 10 https://wired-new.onrender.com || echo "Server is down"
