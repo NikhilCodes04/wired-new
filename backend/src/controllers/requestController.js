@@ -66,9 +66,26 @@ const getRequestsByUser = async (req, res) => {
             .populate('projectId', 'name') // Populate project details
             .exec();
 
-        res.status(200).json({ message: 'Requests retrieved successfully', requests });
+        
+        // Check if requests array is empty
+        if (!requests || requests.length === 0) {
+            return res.status(200).json({ 
+                message: 'No requests found for this user', 
+                requests: [] 
+            });
+        }
+
+        // If requests are found, return them
+        res.status(200).json({ 
+            message: 'Requests retrieved successfully', 
+            requests 
+        });
     } catch (err) {
-        res.status(500).json({ message: 'Error fetching requests', error: err.message });
+        console.error("Error fetching requests:", err);
+        res.status(500).json({ 
+            message: 'Error fetching requests', 
+            error: err.message 
+        });
     }
 };
 

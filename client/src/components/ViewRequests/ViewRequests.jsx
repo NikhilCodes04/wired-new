@@ -15,11 +15,11 @@ const ViewRequests = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                setRequests(response.data);
+                setRequests(response.data.requests);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching requests:", err);
-                setError("Failed to load requests.");
+                setError(err.response?.data?.message || "Failed to load requests.");
                 setLoading(false);
             }
         };
@@ -60,7 +60,7 @@ const ViewRequests = () => {
             <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Manage Your Requests</h2>
                 {requests.length === 0 ? (
-                    <p className="text-gray-600">No requests to display.</p>
+                    <p className="text-gray-600">No requests found for this user.</p>
                 ) : (
                     <ul className="space-y-4">
                         {requests.map((request) => (
@@ -74,10 +74,10 @@ const ViewRequests = () => {
                                         : "Teammate Request"}
                                 </h3>
                                 <p className="text-gray-600">
-                                    <strong>Sender:</strong> {request.senderId}
+                                    <strong>Sender:</strong> {request.senderId.name} ({request.senderId.email})
                                 </p>
                                 <p className="text-gray-600">
-                                    <strong>Project:</strong> {request.projectId}
+                                    <strong>Project:</strong> {request.projectId.name}
                                 </p>
                                 <p className="text-gray-600">
                                     <strong>Status:</strong> {request.status}
