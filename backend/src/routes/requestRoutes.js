@@ -5,7 +5,8 @@ const {
     sendRequest,
     getRequestsByUser,
     updateRequestStatus,
-    getRequestsForProject
+    getRequestsForProject,
+    cancelRequest,
 } = require('../controllers/requestController.js');
 
 const router = express.Router();
@@ -42,6 +43,14 @@ router.patch(
     // Ensure only the admin or the receiver (student/mentor) can update the status
     authorizeRoles('admin', 'student', 'mentor'),
     updateRequestStatus
+);
+
+
+router.patch(
+    '/cancel/:requestId',
+    verifyToken,
+    // Only the sender can cancel the request
+    cancelRequest
 );
 
 module.exports = router;

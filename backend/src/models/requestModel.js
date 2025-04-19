@@ -5,7 +5,11 @@ const requestSchema = new mongoose.Schema({
     receiverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
     type: { type: String, enum: ['teammate_request', 'mentor_request'], required: true },
-    status: { type: String, enum: ['pending', 'accepted', 'declined'], default: 'pending' },
+    status: { 
+        type: String, 
+        enum: ['pending', 'accepted', 'declined', 'canceled'], // Added 'canceled'
+        default: 'pending' 
+    },
 });
 
 module.exports = mongoose.model('Request', requestSchema);

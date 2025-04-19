@@ -71,25 +71,32 @@ const getRequestsByUser = async (req, res) => {
             .populate('projectId', 'name') // Populate project details
             .exec();
 
-        
-        // Check if requests array is empty
         if (!requests || requests.length === 0) {
-            return res.status(200).json({ 
-                message: 'No requests found for this user', 
-                requests: [] 
+            return res.status(200).json({
+                message: 'No requests found for this user',
+                incomingRequests: [],
+                outgoingRequests: [],
             });
         }
 
-        // If requests are found, return them
-        res.status(200).json({ 
-            message: 'Requests retrieved successfully', 
-            requests 
+        // Segregate requests into incoming and outgoing
+        const incomingRequests = requests.filter(
+            (req) => req.receiverId._id.toString() === userId
+        );
+        const outgoingRequests = requests.filter(
+            (req) => req.senderId._id.toString() === userId
+        );
+
+        res.status(200).json({
+            message: 'Requests retrieved successfully',
+            incomingRequests,
+            outgoingRequests,
         });
     } catch (err) {
-        console.error("Error fetching requests:", err);
-        res.status(500).json({ 
-            message: 'Error fetching requests', 
-            error: err.message 
+        console.error('Error fetching requests:', err);
+        res.status(500).json({
+            message: 'Error fetching requests',
+            error: err.message,
         });
     }
 };
@@ -165,9 +172,37 @@ const updateRequestStatus = async (req, res) => {
     }
 };
 
+const cancelRequest = async (req, res) => {
+    const { requestId } = req.params;
+
+    try {
+        // Find the request by ID
+        const request = await Request.findById(requestId);
+
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+
+        // Ensure that the user is the sender of the request
+        if (request.senderId.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'You are not authorized to cancel this request' });
+        }
+
+        // Update the status to 'canceled'
+        request.status = 'canceled';
+        await request.save();
+
+        res.status(200).json({ message: 'Request canceled successfully', request });
+    } catch (err) {
+        console.error('Error canceling request:', err);
+        res.status(500).json({ message: 'Error canceling request', error: err.message });
+    }
+};
+
 module.exports = {
     sendRequest,
     getRequestsByUser,
     getRequestsForProject,
     updateRequestStatus,
+    cancelRequest,
 };
