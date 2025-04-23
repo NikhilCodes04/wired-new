@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import config from '../../config/config';
+import { jwtDecode } from "jwt-decode";
 
 export const ViewProjects = () => {
     const [projects, setProjects] = useState([]);
@@ -11,6 +12,9 @@ export const ViewProjects = () => {
     const [activeTab, setActiveTab] = useState('all'); // Tab state: 'all' or 'my'
 
     const navigate = useNavigate();
+    const decodedToken = jwtDecode(localStorage.getItem('token'));
+    //console.log(decodedToken.id);
+
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -33,8 +37,13 @@ export const ViewProjects = () => {
                 }
 
                 const data = await response.json();
+                //console.log(data);
+                const userId = decodedToken.id; // Get userId from the response or local storage
+                if (!userId) {
+                    throw new Error('User ID not found');
+                }
                 setProjects(data.projects || []);
-                setMyProjects(data.projects.filter((project) => project.createdBy === data.userId)); // Filter user's projects
+                setMyProjects(data.projects.filter((project) => project.createdBy._id === userId)); // Adjusted filtering logic // Filter user's projects
                 setLoading(false);
             } catch (err) {
                 setError(err.message || 'An unexpected error occurred');
@@ -43,7 +52,7 @@ export const ViewProjects = () => {
         };
 
         fetchProjects();
-    }, []);
+    }, [decodedToken.id]);
 
     // Filter projects based on the search term
     const filteredProjects =
@@ -64,8 +73,8 @@ export const ViewProjects = () => {
                 <div className="flex border-b mb-6">
                     <button
                         className={`py-2 px-4 mr-2 ${activeTab === 'all'
-                                ? 'border-b-2 border-blue-500 font-medium text-blue-600'
-                                : 'text-gray-500'
+                            ? 'border-b-2 border-blue-500 font-medium text-blue-600'
+                            : 'text-gray-500'
                             }`}
                         onClick={() => setActiveTab('all')}
                     >
@@ -73,8 +82,8 @@ export const ViewProjects = () => {
                     </button>
                     <button
                         className={`py-2 px-4 ${activeTab === 'my'
-                                ? 'border-b-2 border-blue-500 font-medium text-blue-600'
-                                : 'text-gray-500'
+                            ? 'border-b-2 border-blue-500 font-medium text-blue-600'
+                            : 'text-gray-500'
                             }`}
                         onClick={() => setActiveTab('my')}
                     >
