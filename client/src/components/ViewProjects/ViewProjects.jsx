@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import config from '../../config/config';
+
 export const ViewProjects = () => {
     const [projects, setProjects] = useState([]);
+    const [myProjects, setMyProjects] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [activeTab, setActiveTab] = useState('all'); // Tab state: 'all' or 'my'
 
     const navigate = useNavigate();
 
@@ -31,6 +34,7 @@ export const ViewProjects = () => {
 
                 const data = await response.json();
                 setProjects(data.projects || []);
+                setMyProjects(data.projects.filter((project) => project.createdBy === data.userId)); // Filter user's projects
                 setLoading(false);
             } catch (err) {
                 setError(err.message || 'An unexpected error occurred');
@@ -42,14 +46,41 @@ export const ViewProjects = () => {
     }, []);
 
     // Filter projects based on the search term
-    const filteredProjects = projects.filter((project) =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProjects =
+        activeTab === 'all'
+            ? projects.filter((project) =>
+                project.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            : myProjects.filter((project) =>
+                project.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
 
     return (
         <div className="min-h-screen bg-gray-100">
             <div className="p-6">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Find Projects</h2>
+
+                {/* Tab Selector */}
+                <div className="flex border-b mb-6">
+                    <button
+                        className={`py-2 px-4 mr-2 ${activeTab === 'all'
+                                ? 'border-b-2 border-blue-500 font-medium text-blue-600'
+                                : 'text-gray-500'
+                            }`}
+                        onClick={() => setActiveTab('all')}
+                    >
+                        All Projects
+                    </button>
+                    <button
+                        className={`py-2 px-4 ${activeTab === 'my'
+                                ? 'border-b-2 border-blue-500 font-medium text-blue-600'
+                                : 'text-gray-500'
+                            }`}
+                        onClick={() => setActiveTab('my')}
+                    >
+                        My Projects
+                    </button>
+                </div>
 
                 {/* Search input */}
                 <input
