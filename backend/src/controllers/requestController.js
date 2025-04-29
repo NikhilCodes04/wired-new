@@ -6,10 +6,10 @@ const User = require('../models/userModel.js');
 const sendRequest = async (req, res) => {
     const { receiverId, projectId, type } = req.body;
     const senderId = req.user.id; // Get senderId from the authenticated user
-    console.log("Sender ID:", senderId);
-    console.log("Receiver ID:", receiverId);
-    console.log("Project ID:", projectId);
-    console.log("Request Type:", type);
+    // console.log("Sender ID:", senderId);
+    // console.log("Receiver ID:", receiverId);
+    // console.log("Project ID:", projectId);
+    // console.log("Request Type:", type);
 
     try {
         // Fetch the project details
