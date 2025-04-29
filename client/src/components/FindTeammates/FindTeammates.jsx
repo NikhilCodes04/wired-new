@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router"; // Import useParams
 import axios from "axios";
 import config from "../../config/config";
 
 const FindTeammates = () => {
+    const { id:projectId } = useParams(); // Extract projectId from the URL
     const [techStack, setTechStack] = useState(""); // Input for tech stack
     const [students, setStudents] = useState([]); // List of students
     const [allStudents, setAllStudents] = useState([]); // Full list of students
     const [loading, setLoading] = useState(false); // Loading state
     const [error, setError] = useState(null); // Error state
 
+
+    console.log("Project ID:", projectId); // Log the projectId for debugging
     // Fetch all students on component load
     useEffect(() => {
         const fetchAllStudents = async () => {
@@ -75,11 +79,43 @@ const FindTeammates = () => {
         }
     };
 
+    const handleSendRequest = async (studentId) => {
+        setLoading(true);
+        setError(null);
+    
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                throw new Error("No token found. Please log in.");
+            }
+    
+            await axios.post(
+                `${config.API_BASE_URL}/request/send`,
+                {
+                    receiverId: studentId, // Ensure this is passed correctly
+                    projectId,             // Include projectId
+                    type: "teammate_request", // Add the type of request
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+    
+            alert("Request sent successfully!");
+        } catch (err) {
+            setError(err.response?.data?.message || "An error occurred while sending the request.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="bg-white shadow-md rounded-lg p-8 max-w-lg mx-auto">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Find Teammates</h2>
-
+    
                 {/* Input for Tech Stack */}
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -93,7 +129,7 @@ const FindTeammates = () => {
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
                 </div>
-
+    
                 {/* Search Button */}
                 <button
                     onClick={handleSearch}
@@ -104,10 +140,10 @@ const FindTeammates = () => {
                 >
                     {loading ? "Searching..." : "Search"}
                 </button>
-
+    
                 {/* Error Message */}
                 {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
-
+    
                 {/* Results */}
                 <div className="mt-6">
                     {students.length > 0 ? (
@@ -127,6 +163,13 @@ const FindTeammates = () => {
                                     <p className="text-gray-600">
                                         <strong>Technological Stack:</strong> {student.technologicalStack.join(", ")}
                                     </p>
+                                    {/* Send Request Button */}
+                                    <button
+                                        onClick={() => handleSendRequest(student._id)}
+                                        className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                    >
+                                        Send Request
+                                    </button>
                                 </li>
                             ))}
                         </ul>

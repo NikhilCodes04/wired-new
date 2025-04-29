@@ -37,13 +37,21 @@ export const ViewProjects = () => {
                 }
 
                 const data = await response.json();
-                //console.log(data);
-                const userId = decodedToken.id; // Get userId from the response or local storage
+                const userId = decodedToken.id; 
                 if (!userId) {
                     throw new Error('User ID not found');
                 }
+
                 setProjects(data.projects || []);
-                setMyProjects(data.projects.filter((project) => project.createdBy._id === userId)); // Adjusted filtering logic // Filter user's projects
+                setMyProjects(
+                    data.projects.filter(
+                        (project) =>
+                            project.createdBy._id === userId || // User is the creator
+                            project.teamMembers.some((member) => member._id === userId) 
+                            // || // User is in teamMembers
+                            // project.mentors.some((mentor) => mentor._id === userId) // User is in mentors
+                    )
+                );
                 setLoading(false);
             } catch (err) {
                 setError(err.message || 'An unexpected error occurred');

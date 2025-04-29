@@ -129,6 +129,12 @@ const updateRequestStatus = async (req, res) => {
             .populate('senderId', 'name email') // Populate sender details
             .populate('projectId', 'name teamMembers mentors'); // Populate project details
 
+            if (!request.projectId) {
+                console.error('Project not found in the request document');
+                return res.status(404).json({ message: 'Project not found in the request document' });
+            }
+            console.log('Populated project:', request.projectId);
+
         if (!request) {
             return res.status(404).json({ message: 'Request not found' });
         }

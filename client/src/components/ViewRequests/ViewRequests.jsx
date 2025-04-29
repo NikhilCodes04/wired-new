@@ -10,7 +10,7 @@ const ViewRequests = () => {
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState("incoming"); // To toggle between tabs
     const token = localStorage.getItem("token");
-    
+
     let userId;
     try {
         // Extract user ID from token - adjust as needed based on your token structure
@@ -31,8 +31,8 @@ const ViewRequests = () => {
                 });
 
                 const { incomingRequests, outgoingRequests } = response.data;
-                console.log("Fetched incoming requests:", incomingRequests);
-                console.log("Fetched outgoing requests:", outgoingRequests);
+                // console.log("Fetched incoming requests:", incomingRequests);
+                // console.log("Fetched outgoing requests:", outgoingRequests);
 
                 setIncomingRequests(incomingRequests);
                 setOutgoingRequests(outgoingRequests);
@@ -49,10 +49,10 @@ const ViewRequests = () => {
 
     const handleRequestAction = async (requestId, status) => {
         try {
-            const endpoint = status === 'canceled' 
-                ? `${config.API_BASE_URL}/request/cancel/${requestId}` 
-                : `${config.API_BASE_URL}/request/${requestId}/status`;
-    
+            const endpoint = status === 'canceled'
+                ? `${config.API_BASE_URL}/request/cancel/${requestId}`
+                : `${config.API_BASE_URL}/request/update/${requestId}`;
+
             const response = await axios.patch(
                 endpoint,
                 status !== 'canceled' ? { status } : {}, // Only send body for non-cancel actions
@@ -62,9 +62,9 @@ const ViewRequests = () => {
                     },
                 }
             );
-    
+
             alert(response.data.message);
-    
+
             // Update UI after response
             if (status === 'canceled') {
                 setOutgoingRequests((prevRequests) =>
@@ -95,23 +95,23 @@ const ViewRequests = () => {
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Manage Your Requests</h2>
-                
+
                 {/* Tab selector */}
                 <div className="flex border-b mb-6">
-                    <button 
+                    <button
                         className={`py-2 px-4 mr-2 ${activeTab === 'incoming' ? 'border-b-2 border-blue-500 font-medium text-blue-600' : 'text-gray-500'}`}
                         onClick={() => setActiveTab('incoming')}
                     >
                         Incoming Requests ({incomingRequests.length})
                     </button>
-                    <button 
+                    <button
                         className={`py-2 px-4 mr-2 ${activeTab === 'outgoing' ? 'border-b-2 border-blue-500 font-medium text-blue-600' : 'text-gray-500'}`}
                         onClick={() => setActiveTab('outgoing')}
                     >
                         Outgoing Requests ({outgoingRequests.length})
                     </button>
                 </div>
-                
+
                 {/* Display active tab content */}
                 {activeTab === 'incoming' && (
                     incomingRequests.length === 0 ? (
@@ -162,7 +162,7 @@ const ViewRequests = () => {
                         </ul>
                     )
                 )}
-                
+
                 {activeTab === 'outgoing' && (
                     outgoingRequests.length === 0 ? (
                         <p className="text-gray-600">No outgoing requests found.</p>
