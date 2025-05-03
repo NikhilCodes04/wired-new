@@ -13,8 +13,6 @@ export const ViewProjects = () => {
 
     const navigate = useNavigate();
     const decodedToken = jwtDecode(localStorage.getItem('token'));
-    //console.log(decodedToken.id);
-
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -47,9 +45,7 @@ export const ViewProjects = () => {
                     data.projects.filter(
                         (project) =>
                             project.createdBy._id === userId || // User is the creator
-                            project.teamMembers.some((member) => member._id === userId) 
-                            // || // User is in teamMembers
-                            // project.mentors.some((mentor) => mentor._id === userId) // User is in mentors
+                            project.teamMembers.some((member) => member._id === userId)
                     )
                 );
                 setLoading(false);
@@ -71,6 +67,36 @@ export const ViewProjects = () => {
             : myProjects.filter((project) =>
                 project.name.toLowerCase().includes(searchTerm.toLowerCase())
             );
+
+    // Perform text index search
+    const handleTextSearch = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem('token');
+            console.log('Search Term:', searchTerm); // Debug log
+            const response = await fetch(`${config.API_BASE_URL}/project/search?q=${searchTerm}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to perform text search');
+            }
+    
+            const data = await response.json();
+            console.log('Search Results:', data.projects); // Debug log
+            setProjects(data.projects || []);
+            setSearchTerm(''); // Clear the input box after search
+            setLoading(false);
+        } catch (err) {
+            console.error('Error performing text search:', err.message); // Debug log
+            setError(err.message || 'An unexpected error occurred');
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -99,14 +125,22 @@ export const ViewProjects = () => {
                     </button>
                 </div>
 
-                {/* Search input */}
-                <input
-                    type="text"
-                    placeholder="Search for a project"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                />
+                {/* Search input with text search button */}
+                <div className="flex items-center mb-6">
+                    <input
+                        type="text"
+                        placeholder="Search for a project"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                    <button
+                        onClick={handleTextSearch}
+                        className="ml-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                    >
+                        Text Search
+                    </button>
+                </div>
 
                 {/* Loading/Error State */}
                 {loading && <p className="text-gray-600">Loading projects...</p>}

@@ -75,6 +75,9 @@ projectSchema.methods.isOverdue = function () {
     return this.endDate && this.endDate < Date.now();
 };
 
+// Add text index on both fields
+projectSchema.index({ description: 'text', technologies: 'text' });
+
 // Export the model
 const Project = mongoose.model('Project', projectSchema);
 module.exports = Project;
