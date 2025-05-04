@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import config from "../../config/config";
+import { useParams } from "react-router"; // Import useParams
 
 const FindMentors = () => {
+    const { id: projectId } = useParams(); // Extract projectId from the URL
     const [techStack, setTechStack] = useState(""); // Input for tech stack
     const [mentors, setMentors] = useState([]); // List of mentors
     const [allMentors, setAllMentors] = useState([]); // Full list of mentors
     const [loading, setLoading] = useState(false); // Loading state
     const [error, setError] = useState(null); // Error state
-
+    console.log("Project ID:", projectId);
     // Fetch all mentors on component load
     useEffect(() => {
         const fetchAllMentors = async () => {
@@ -75,6 +77,39 @@ const FindMentors = () => {
         }
     };
 
+    // Handle send request to mentor
+    const handleSendRequest = async (mentorId) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                throw new Error("No token found. Please log in.");
+            }
+
+            await axios.post(
+                `${config.API_BASE_URL}/request/send`,
+                {
+                    receiverId: mentorId, // Mentor ID
+                    projectId: projectId, // Include projectId in the payload
+                    type: "mentor_request", // Add the type of request
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            alert("Request sent successfully!");
+        } catch (err) {
+            setError(err.response?.data?.message || "An error occurred while sending the request.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="bg-white shadow-md rounded-lg p-8 max-w-lg mx-auto">
@@ -127,6 +162,13 @@ const FindMentors = () => {
                                     <p className="text-gray-600">
                                         <strong>Technological Stack:</strong> {mentor.technologicalStack.join(", ")}
                                     </p>
+                                    {/* Send Request Button */}
+                                    <button
+                                        onClick={() => handleSendRequest(mentor._id)}
+                                        className="mt-4 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                    >
+                                        Send Request
+                                    </button>
                                 </li>
                             ))}
                         </ul>

@@ -124,7 +124,19 @@ const ProjectPage = () => {
                             <li key={member._id}>{member.name}</li>
                         ))}
                     </ul>
-                    
+
+                    {/* Mentors */}
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Mentors:</h3>
+                    <ul className="list-disc list-inside text-gray-600 mb-4">
+                        {project.mentors && project.mentors.length > 0 ? (
+                            project.mentors.map((mentor) => (
+                                <li key={mentor._id}>{mentor.name}</li>
+                            ))
+                        ) : (
+                            <p className="text-gray-600">No mentors assigned to this project yet.</p>
+                        )}
+                    </ul>
+
                     <div className='flex'>
                         {isOwner ? (
                             <>

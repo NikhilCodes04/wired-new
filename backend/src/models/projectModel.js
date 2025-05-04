@@ -23,7 +23,7 @@ const projectSchema = new mongoose.Schema(
             default: [],
         },
         mentors: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: [mongoose.Schema.Types.ObjectId],
             ref: 'User',
             required: false, // Mentor is optional
         },
