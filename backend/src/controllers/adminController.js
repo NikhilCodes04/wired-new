@@ -215,7 +215,7 @@ const getDatabaseGrowth = async (req, res) => {
     }
 };
 
-module.exports = { getDatabaseGrowth };
+
 
 
 module.exports = {

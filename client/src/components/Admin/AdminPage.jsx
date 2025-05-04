@@ -62,19 +62,19 @@ const AdminPage = () => {
     }, []); // Removed growthData from dependency array
 
     // Handle delete old requests
-    const handleDeleteOldRequests = async () => {
-        try {
-            const response = await axios.post(`${config.API_BASE_URL}/admin/delete-old-requests`, {
-                status: ["pending", "cancelled", "accepted"],
-                olderThanDate: "2025-01-01",
-            });
+    // const handleDeleteOldRequests = async () => {
+    //     try {
+    //         const response = await axios.post(`${config.API_BASE_URL}/admin/delete-old-requests`, {
+    //             status: ["pending", "cancelled", "accepted"],
+    //             olderThanDate: "2025-01-01",
+    //         });
 
-            alert(response.data.message || "Old requests deleted successfully!");
-        } catch (err) {
-            alert("Error deleting old requests.");
-            console.error(err);
-        }
-    };
+    //         alert(response.data.message || "Old requests deleted successfully!");
+    //     } catch (err) {
+    //         alert("Error deleting old requests.");
+    //         console.error(err);
+    //     }
+    // };
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -159,14 +159,14 @@ const AdminPage = () => {
                 </Section>
 
                 {/* Delete Old Requests Button */}
-                <div className="mt-6">
+                {/* <div className="mt-6">
                     <button
                         onClick={handleDeleteOldRequests}
                         className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
                     >
                         Delete Old Requests
                     </button>
-                </div>
+                </div> */}
             </div>
         </div>
     );
