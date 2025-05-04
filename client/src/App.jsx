@@ -13,7 +13,7 @@ import ViewRequests from "./components/ViewRequests/ViewRequests.jsx";
 import DefaultComponent from "./components/DefaultComponenent/DefaultComponent.jsx";
 import FindTeammates from "./components/FindTeammates/FindTeammates.jsx";
 import FindMentors from "./components/FindMentors/FindMentors.jsx";
-
+import Admin from "./components/Admin/AdminPage.jsx";
 
 function App() {
   return (
@@ -23,6 +23,7 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="admin" element={<Admin />} />
 
         <Route path="/dashboard" element={
             <ProtectedRoute>
@@ -38,27 +39,6 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="view-requests" element={<ViewRequests />} />
         </Route>
-        {/* 
-        <Route
-          path="/projects/:projectId/find-teammates"
-          element={
-            <ProtectedRoute>
-              <FindTeammates />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/projects/:projectId/find-mentor"
-          element={
-            <ProtectedRoute>
-              <FindMentor />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/view-requests" element={<ViewRequests />} />
-        <Route path="/requests" element={<Requests />} />
-        <Route path="/add-project" element={<AddProject />} />
-        <Route path="/view-project" element={<ViewProjects />} /> */}
 
 
       </Routes>
