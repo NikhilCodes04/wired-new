@@ -61,10 +61,171 @@ const deleteOldRequests = async (req, res) => {
     }
 };
 
+
+const getTopStudentsByProjects = async (req, res) => {
+    try {
+        const students = await Project.aggregate([
+            {
+                $lookup: {
+                    from: "users", // Join with the users collection
+                    localField: "teamMembers",
+                    foreignField: "_id",
+                    as: "teamDetails",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$teamDetails", // Flatten team members
+                    preserveNullAndEmptyArrays: true, // Allow projects with no team members
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        $ifNull: ["$teamDetails._id", "$createdBy"], // Use team member ID or fallback to createdBy
+                    },
+                    name: { $first: "$teamDetails.name" }, // Get the user's name
+                    email: { $first: "$teamDetails.email" }, // Get the user's email
+                    projectCount: { $sum: 1 }, // Count the number of projects
+                },
+            },
+            {
+                $lookup: {
+                    from: "users", // Join again to fetch details for createdBy users
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "userDetails",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$userDetails",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $addFields: {
+                    name: { $ifNull: ["$name", "$userDetails.name"] }, // Use name from teamDetails or userDetails
+                    email: { $ifNull: ["$email", "$userDetails.email"] }, // Use email from teamDetails or userDetails
+                },
+            },
+            {
+                $sort: { projectCount: -1 }, // Sort by project count in descending order
+            },
+            {
+                $limit: 5, // Limit to top 5 students
+            },
+        ]);
+
+        res.status(200).json({ students });
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching top students", error: err.message });
+    }
+};
+
+const getProjectsByTechStack = async (req, res) => {
+    try {
+        const projectsByTech = await Project.aggregate([
+            { $unwind: "$technologies" },
+            {
+                $group: {
+                    _id: "$technologies",
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { count: -1 } },
+            { $limit: 10 },
+        ]);
+
+        res.status(200).json({ projectsByTech });
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching projects by tech stack", error: err.message });
+    }
+};
+
+
+const getProjectsByStatus = async (req, res) => {
+    try {
+        const projectsByStatus = await Project.aggregate([
+            {
+                $group: {
+                    _id: "$status",
+                    count: { $sum: 1 },
+                },
+            },
+        ]);
+
+        res.status(200).json({ projectsByStatus });
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching projects by status", error: err.message });
+    }
+};
+
+const getDatabaseGrowth = async (req, res) => {
+    try {
+        // Aggregate student growth
+        const studentsGrowth = await User.aggregate([
+            { $match: { role: "student" } }, // Filter only students
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } },
+        ]);
+
+        // Aggregate mentor growth
+        const mentorsGrowth = await User.aggregate([
+            { $match: { role: "mentor" } }, // Filter only mentors
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } },
+        ]);
+
+        // Aggregate project growth
+        const projectsGrowth = await Project.aggregate([
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    count: { $sum: 1 },
+                },
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } },
+        ]);
+
+        // Format the response for better readability
+        const formatGrowthData = (data) =>
+            data.map((item) => ({
+                date: `${item._id.year}-${String(item._id.month).padStart(2, "0")}`,
+                count: item.count,
+            }));
+
+        res.status(200).json({
+            studentsGrowth: formatGrowthData(studentsGrowth),
+            mentorsGrowth: formatGrowthData(mentorsGrowth),
+            projectsGrowth: formatGrowthData(projectsGrowth),
+        });
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching database growth", error: err.message });
+    }
+};
+
+module.exports = { getDatabaseGrowth };
+
+
 module.exports = {
     getTotalProjects,
     getTotalStudents,
     getTotalMentors,
     getRecentProject,
     deleteOldRequests,
+    getTopStudentsByProjects,
+    getProjectsByTechStack,
+    getProjectsByStatus,
+    getDatabaseGrowth,
 };

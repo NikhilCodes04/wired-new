@@ -1,57 +1,73 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import config from "../../config/config";
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 const AdminPage = () => {
-    const [totalProjects, setTotalProjects] = useState(0);
-    const [totalStudents, setTotalStudents] = useState(0);
-    const [totalMentors, setTotalMentors] = useState(0);
-    const [recentProject, setRecentProject] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [adminData, setAdminData] = useState({
+        totalProjects: 0,
+        totalStudents: 0,
+        totalMentors: 0,
+        recentProject: null,
+        topStudents: [],
+        projectsByTech: [],
+        projectsByStatus: [],
+        growthData: { usersGrowth: [], projectsGrowth: [], requestsGrowth: [] },
+    });
 
     // Fetch admin data
     useEffect(() => {
         const fetchAdminData = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const headers = { Authorization: `Bearer ${token}` };
-
-                // Ensure all requests use the base URL
-                const [projectsRes, studentsRes, mentorsRes, recentProjectRes] = await Promise.all([
-                    axios.get(`${config.API_BASE_URL}/admin/total-projects`, { headers }),
-                    axios.get(`${config.API_BASE_URL}/admin/total-students`, { headers }),
-                    axios.get(`${config.API_BASE_URL}/admin/total-mentors`, { headers }),
-                    axios.get(`${config.API_BASE_URL}/admin/recent-project`, { headers }),
+                const [
+                    projectsRes,
+                    studentsRes,
+                    mentorsRes,
+                    recentProjectRes,
+                    topStudentsRes,
+                    techRes,
+                    statusRes,
+                    growthRes,
+                ] = await Promise.all([
+                    axios.get(`${config.API_BASE_URL}/admin/total-projects`),
+                    axios.get(`${config.API_BASE_URL}/admin/total-students`),
+                    axios.get(`${config.API_BASE_URL}/admin/total-mentors`),
+                    axios.get(`${config.API_BASE_URL}/admin/recent-project`),
+                    axios.get(`${config.API_BASE_URL}/admin/top-students`),
+                    axios.get(`${config.API_BASE_URL}/admin/projects-by-tech`),
+                    axios.get(`${config.API_BASE_URL}/admin/projects-by-status`),
+                    axios.get(`${config.API_BASE_URL}/admin/database-growth`),
                 ]);
 
-                setTotalProjects(projectsRes.data.totalProjects);
-                setTotalStudents(studentsRes.data.totalStudents);
-                setTotalMentors(mentorsRes.data.totalMentors);
-                setRecentProject(recentProjectRes.data.recentProject);
+                setAdminData({
+                    totalProjects: projectsRes.data.totalProjects,
+                    totalStudents: studentsRes.data.totalStudents,
+                    totalMentors: mentorsRes.data.totalMentors,
+                    recentProject: recentProjectRes.data.recentProject,
+                    topStudents: topStudentsRes.data.students,
+                    projectsByTech: techRes.data.projectsByTech,
+                    projectsByStatus: statusRes.data.projectsByStatus,
+                    growthData: growthRes.data,
+                });
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching admin data:", err);
+                alert("Failed to load admin data. Please try again later.");
                 setLoading(false);
             }
         };
 
         fetchAdminData();
-    }, []);
+    }, []); // Removed growthData from dependency array
 
     // Handle delete old requests
     const handleDeleteOldRequests = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const headers = { Authorization: `Bearer ${token}` };
-
-            const response = await axios.post(
-                `${config.API_BASE_URL}/admin/delete-old-requests`,
-                {
-                    status: ["pending", "cancelled", "accepted"], // Example statuses
-                    olderThanDate: "2025-01-01", // Example date
-                },
-                { headers }
-            );
+            const response = await axios.post(`${config.API_BASE_URL}/admin/delete-old-requests`, {
+                status: ["pending", "cancelled", "accepted"],
+                olderThanDate: "2025-01-01",
+            });
 
             alert(response.data.message || "Old requests deleted successfully!");
         } catch (err) {
@@ -64,42 +80,112 @@ const AdminPage = () => {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     }
 
-    return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-            <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-3xl">
-                <h1 className="text-3xl font-bold text-gray-800 mb-4">Admin Section</h1>
-                <p className="text-gray-600 text-lg mb-6">Here you can manage users, projects, and more.</p>
+    const {
+        totalProjects,
+        totalStudents,
+        totalMentors,
+        recentProject,
+        topStudents,
+        projectsByTech,
+        projectsByStatus,
+        growthData,
+    } = adminData;
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-blue-100 p-4 rounded-lg shadow">
-                        <h2 className="text-xl font-bold text-blue-800">Total Projects</h2>
-                        <p className="text-blue-600 text-lg">{totalProjects}</p>
-                    </div>
-                    <div className="bg-green-100 p-4 rounded-lg shadow">
-                        <h2 className="text-xl font-bold text-green-800">Total Students</h2>
-                        <p className="text-green-600 text-lg">{totalStudents}</p>
-                    </div>
-                    <div className="bg-yellow-100 p-4 rounded-lg shadow">
-                        <h2 className="text-xl font-bold text-yellow-800">Total Mentors</h2>
-                        <p className="text-yellow-600 text-lg">{totalMentors}</p>
-                    </div>
-                    <div className="bg-purple-100 p-4 rounded-lg shadow">
-                        <h2 className="text-xl font-bold text-purple-800">Recent Project</h2>
-                        <p className="text-purple-600 text-lg">
-                            {recentProject ? recentProject.name || "Unnamed Project" : "No recent project"}
-                        </p>
-                    </div>
+    return (
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8">
+            <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-4xl">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 gap-6 mb-8">
+                    <SummaryCard title="Total Projects" value={totalProjects} color="blue" />
+                    <SummaryCard title="Total Students" value={totalStudents} color="green" />
+                    <SummaryCard title="Total Mentors" value={totalMentors} color="yellow" />
+                    <SummaryCard
+                        title="Recent Project"
+                        value={recentProject ? recentProject.name || "Unnamed Project" : "No recent project"}
+                        color="purple"
+                    />
                 </div>
 
-                <button
-                    onClick={handleDeleteOldRequests}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-                >
-                    Delete Old Requests
-                </button>
+                {/* Top Students */}
+                <Section title="Top Students by Projects">
+                    <ul>
+                        {topStudents.map((student) => (
+                            <li key={student._id} className="mb-2">
+                                {student.name} ({student.email}) - {student.projectCount} projects
+                            </li>
+                        ))}
+                    </ul>
+                </Section>
+
+                {/* Projects by Technology */}
+                <Section title="Most Technology Used in Projects">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {projectsByTech.map((tech) => (
+                            <div
+                                key={tech._id}
+                                className="bg-blue-100 p-4 rounded-lg shadow-md flex justify-between items-center"
+                            >
+                                <span className="text-blue-800 font-semibold">{tech._id}</span>
+                                <span className="text-blue-600 font-bold">{tech.count}</span>
+                            </div>
+                        ))}
+                    </div>
+                </Section>
+
+                {/* Projects by Status */}
+                <Section title="Projects by Status">
+                    <ul>
+                        {projectsByStatus.map((status) => (
+                            <li key={status._id}>
+                                {status._id}: {status.count}
+                            </li>
+                        ))}
+                    </ul>
+                </Section>
+
+                {/* Growth Chart */}
+                <Section title="Growth Over Time">
+                    <LineChart width={600} height={300} data={growthData.studentsGrowth}>
+                        {/* <Line type="monotone" dataKey="count" stroke="#8884d8" name="Students" /> */}
+                        {/* <Line type="monotone" dataKey="count" data={growthData.mentorsGrowth} stroke="#82ca9d" name="Mentors" /> */}
+                        <Line type="monotone" dataKey="count" data={growthData.projectsGrowth} stroke="#ffc658" name="Projects" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                    </LineChart>
+                </Section>
+
+                {/* Delete Old Requests Button */}
+                <div className="mt-6">
+                    <button
+                        onClick={handleDeleteOldRequests}
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                    >
+                        Delete Old Requests
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
+
+// Summary Card Component
+const SummaryCard = ({ title, value, color }) => (
+    <div className={`bg-${color}-100 p-4 rounded-lg shadow`}>
+        <h2 className={`text-xl font-bold text-${color}-800`}>{title}</h2>
+        <p className={`text-${color}-600 text-lg`}>{value}</p>
+    </div>
+);
+
+// Section Component
+const Section = ({ title, children }) => (
+    <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">{title}</h2>
+        {children}
+    </div>
+);
 
 export default AdminPage;
