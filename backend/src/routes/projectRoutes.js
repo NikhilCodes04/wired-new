@@ -1,5 +1,5 @@
 const express = require('express');
-const { addProject, getAllProjects, getProjectById } = require('../controllers/projectController');
+const { addProject, getAllProjects, getProjectById, updateProjectStatus } = require('../controllers/projectController');
 const verifyToken = require('../middlewares/authMiddleware');
 const authorizeRoles = require('../middlewares/roleMiddleware');
 const Project = require('../models/projectModel'); // Assuming you have a project model defined
@@ -10,6 +10,8 @@ router.post('/add', verifyToken, addProject);
 
 // Route to get all projects - Accessible by admin or users with the required role
 router.get('/', verifyToken, authorizeRoles('admin', 'mentor', 'student'), getAllProjects);
+
+router.patch('/:id/status', verifyToken,authorizeRoles('admin', 'mentor', 'student'),updateProjectStatus); // Route to update project status
 
 
 

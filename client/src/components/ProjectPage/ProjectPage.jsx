@@ -52,6 +52,37 @@ const ProjectPage = () => {
         fetchProjectDetails();
     }, [id]);
 
+    const handleUpdateStatus = async (newStatus) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No token found in local storage');
+            }
+
+            const response = await fetch(`${config.API_BASE_URL}/project/${id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update project status');
+            }
+
+            const updatedProject = await response.json();
+            console.log('Updated Project:', updatedProject); // Log the response to check the data
+            setProject(updatedProject.project); // Update the project state with the new status
+            alert(`Project status updated to ${newStatus}`);
+        } catch (err) {
+            console.error('Error updating project status:', err.message);
+            alert(err.message || 'An error occurred while updating the project status.');
+        }
+    };
+
     const handleJoinProject = async (joinAs) => {
         try {
             const token = localStorage.getItem('token');
@@ -104,7 +135,20 @@ const ProjectPage = () => {
                 <div className="bg-white shadow-md rounded-lg p-8">
                     <h2 className="text-3xl font-bold text-gray-800 mb-4">{project.name}</h2>
                     <p className="text-gray-600 mb-4">{project.description}</p>
-                    
+
+                    {/* Project Status */}
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Status:</h3>
+                    <p
+                        className={`text-lg font-bold mb-4 ${project.status === 'pending'
+                                ? 'text-yellow-600'
+                                : project.status === 'active'
+                                    ? 'text-blue-600'
+                                    : 'text-green-600'
+                            }`}
+                    >
+                        {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                    </p>
+
                     {/* Project Leader */}
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">Project Leader:</h3>
                     <p className="text-gray-600 mb-4">{project.createdBy.name}</p>
@@ -137,13 +181,31 @@ const ProjectPage = () => {
                         )}
                     </ul>
 
-                    <div className='flex'>
+                    <div className="flex flex-wrap gap-2 mt-4">
                         {isOwner ? (
                             <>
+                                {/* Status Update Buttons */}
+                                {project.status === 'pending' && (
+                                    <button
+                                        onClick={() => handleUpdateStatus('active')}
+                                        className="p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                                    >
+                                        Mark as Active
+                                    </button>
+                                )}
+                                {project.status === 'active' && (
+                                    <button
+                                        onClick={() => handleUpdateStatus('completed')}
+                                        className="p-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                                    >
+                                        Mark as Completed
+                                    </button>
+                                )}
+
                                 {/* NavLink for Find Teammates */}
                                 <NavLink
                                     to={`/dashboard/view-projects/${id}/find-teammates`}
-                                    className="p-2 bg-indigo-600 m-1 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                                    className="p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
                                 >
                                     Find Teammates
                                 </NavLink>
@@ -151,25 +213,28 @@ const ProjectPage = () => {
                                 {/* NavLink for Find Mentors */}
                                 <NavLink
                                     to={`/dashboard/view-projects/${id}/find-mentor`}
-                                    className="p-2 bg-indigo-600 m-1 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                                    className="p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
                                 >
                                     Find Mentors
                                 </NavLink>
                             </>
                         ) : (
                             <>
+                                {/* Join as Teammate */}
                                 {userRole === 'student' && (
                                     <button
                                         onClick={() => handleJoinProject('teammate')}
-                                        className="p-2 bg-indigo-600 m-1 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                                        className="p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
                                     >
                                         Join as Teammate
                                     </button>
                                 )}
+
+                                {/* Join as Mentor */}
                                 {userRole === 'mentor' && (
                                     <button
                                         onClick={() => handleJoinProject('mentor')}
-                                        className="p-2 bg-indigo-600 m-1 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                                        className="p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
                                     >
                                         Join as Mentor
                                     </button>
