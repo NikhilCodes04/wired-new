@@ -59,22 +59,7 @@ const AdminPage = () => {
         };
 
         fetchAdminData();
-    }, []); // Removed growthData from dependency array
-
-    // Handle delete old requests
-    // const handleDeleteOldRequests = async () => {
-    //     try {
-    //         const response = await axios.post(`${config.API_BASE_URL}/admin/delete-old-requests`, {
-    //             status: ["pending", "cancelled", "accepted"],
-    //             olderThanDate: "2025-01-01",
-    //         });
-
-    //         alert(response.data.message || "Old requests deleted successfully!");
-    //     } catch (err) {
-    //         alert("Error deleting old requests.");
-    //         console.error(err);
-    //     }
-    // };
+    }, []); 
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -148,8 +133,7 @@ const AdminPage = () => {
                 {/* Growth Chart */}
                 <Section title="Growth Over Time">
                     <LineChart width={600} height={300} data={growthData.studentsGrowth}>
-                        {/* <Line type="monotone" dataKey="count" stroke="#8884d8" name="Students" /> */}
-                        {/* <Line type="monotone" dataKey="count" data={growthData.mentorsGrowth} stroke="#82ca9d" name="Mentors" /> */}
+                        
                         <Line type="monotone" dataKey="count" data={growthData.projectsGrowth} stroke="#ffc658" name="Projects" />
                         <XAxis dataKey="date" />
                         <YAxis />
@@ -157,16 +141,6 @@ const AdminPage = () => {
                         <Legend />
                     </LineChart>
                 </Section>
-
-                {/* Delete Old Requests Button */}
-                {/* <div className="mt-6">
-                    <button
-                        onClick={handleDeleteOldRequests}
-                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-                    >
-                        Delete Old Requests
-                    </button>
-                </div> */}
             </div>
         </div>
     );
