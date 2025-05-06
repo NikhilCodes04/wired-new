@@ -3,6 +3,14 @@ import axios from "axios";
 import config from "../../config/config";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
+const toTitleCase = (str) => {
+    return str
+        .toLowerCase()
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+};
+
 const AdminPage = () => {
     const [loading, setLoading] = useState(true);
     const [adminData, setAdminData] = useState({
@@ -59,7 +67,7 @@ const AdminPage = () => {
         };
 
         fetchAdminData();
-    }, []); 
+    }, []);
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -83,16 +91,16 @@ const AdminPage = () => {
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-2 gap-6 mb-8">
-                    <SummaryCard title="Total Projects" value={totalProjects} color="blue" />
-                    <SummaryCard title="Total Students" value={totalStudents} color="green" />
-                    <SummaryCard title="Total Mentors" value={totalMentors} color="yellow" />
+                    <SummaryCard title="Total Projects" value={totalProjects} bgColor="#E0F7FA" textColor="#00796B" />
+                    <SummaryCard title="Total Students" value={totalStudents} bgColor="#E8F5E9" textColor="#388E3C" />
+                    <SummaryCard title="Total Mentors" value={totalMentors} bgColor="#FFFDE7" textColor="#FBC02D" />
                     <SummaryCard
                         title="Recent Project"
                         value={recentProject ? recentProject.name || "Unnamed Project" : "No recent project"}
-                        color="purple"
+                        bgColor="#F3E5F5"
+                        textColor="#8E24AA"
                     />
                 </div>
-
                 {/* Top Students */}
                 <Section title="Top Students by Projects">
                     <ul>
@@ -121,19 +129,23 @@ const AdminPage = () => {
 
                 {/* Projects by Status */}
                 <Section title="Projects by Status">
-                    <ul>
+                    <div className="flex justify-between gap-4">
                         {projectsByStatus.map((status) => (
-                            <li key={status._id}>
-                                {status._id}: {status.count}
-                            </li>
+                            <div
+                                key={status._id}
+                                className="flex-1 bg-gray-100 p-4 rounded-lg shadow-md text-center"
+                            >
+                                <h3 className="text-lg font-bold text-gray-800">{toTitleCase(status._id)}</h3>
+                                <p className="text-2xl font-semibold text-blue-600">{status.count}</p>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </Section>
 
                 {/* Growth Chart */}
                 <Section title="Growth Over Time">
                     <LineChart width={600} height={300} data={growthData.studentsGrowth}>
-                        
+
                         <Line type="monotone" dataKey="count" data={growthData.projectsGrowth} stroke="#ffc658" name="Projects" />
                         <XAxis dataKey="date" />
                         <YAxis />
@@ -147,10 +159,10 @@ const AdminPage = () => {
 };
 
 // Summary Card Component
-const SummaryCard = ({ title, value, color }) => (
-    <div className={`bg-${color}-100 p-4 rounded-lg shadow`}>
-        <h2 className={`text-xl font-bold text-${color}-800`}>{title}</h2>
-        <p className={`text-${color}-600 text-lg`}>{value}</p>
+const SummaryCard = ({ title, value, bgColor, textColor }) => (
+    <div className="p-4 rounded-lg shadow" style={{ backgroundColor: bgColor }}>
+        <h2 className="text-xl font-bold" style={{ color: textColor }}>{title}</h2>
+        <p className="text-lg" style={{ color: textColor }}>{value}</p>
     </div>
 );
 
