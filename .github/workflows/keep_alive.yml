@@ -2,13 +2,18 @@ name: Keep Render Server Alive
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Runs every 10 minutes
-  workflow_dispatch:        # Allows manual runs too
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:
 
 jobs:
   keep_alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Render Server
+      - name: Ping Render Server and Check Response
         run: |
-          curl -m 10 https://wired-new.onrender.com || echo "Server is down"
+          RESPONSE=$(curl -m 10 -s https://wired-new.onrender.com)
+          if [[ "$RESPONSE" == *"Welcome to Wired"* ]]; then
+            echo "✅ Server is awake and responding correctly."
+          else
+            echo "⚠️ Server responded but did not return expected output."
+            exit 1
